@@ -13,9 +13,13 @@ public class Hex {
     public readonly int R;  // row
     public readonly int S;  // sum
 
+	public float Elevation;
+	public float Moisture;
+
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
     static readonly float RADIUS = 1f;
 
+	// TODO: Link with HexMap version of this
     bool allowWrapEastWest = true;
     bool allowWrapNorthSouth = false;
 

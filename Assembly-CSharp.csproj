@@ -46,7 +46,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\CameraMotion.cs" />
+     <Compile Include="Assets\Hex.cs" />
+     <Compile Include="Assets\HexComponent.cs" />
      <Compile Include="Assets\HexMap.cs" />
+     <Compile Include="Assets\HexMap_Continent.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

@@ -1,8 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\HexMap.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\HexMap_Continent.cs">
     <Files>
-      <File FileName="Assets\HexMap.cs" Line="17" Column="12" />
+      <File FileName="Assets\HexMap.cs" Line="93" Column="3" />
+      <File FileName="Assets\HexMap_Continent.cs" Line="12" Column="23" />
+      <File FileName="Assets\Hex.cs" Line="17" Column="24" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
