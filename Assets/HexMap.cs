@@ -23,6 +23,11 @@ public class HexMap : MonoBehaviour
 	public Material MatGrasslands;
 	public Material MatMountains;
 
+    // thresholds to determine what a tile is based on height
+    public float HeightMountain = 1f;
+    public float HeightHill = 0.6f;
+    public float HeightFlat = 0.0f;
+
 	public readonly int NumRows = 30;
 	public readonly int NumCols = 60;
 
@@ -40,11 +45,18 @@ public class HexMap : MonoBehaviour
 			return null;	
 		}
 
-		if (allowWrapEastWest)
-			x = x % NumCols;
-		
-		if (allowWrapNorthSouth)
-			y = y % NumRows;
+		if (allowWrapEastWest) {
+            x = x % NumCols;
+            if (x < 0)
+                x += NumCols;
+        }
+
+
+        if (allowWrapNorthSouth) {
+            y = y % NumRows;
+            if (y < 0)
+                y += NumRows;
+        }
 		
 		return hexes [x, y];
 	}
@@ -100,13 +112,17 @@ public class HexMap : MonoBehaviour
 				GameObject hexGO = hexToGameObjectMap [h];
 
 				MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer> ();
-				if (h.Elevation >= 0) {
+				if (h.Elevation >= HeightMountain) {
+					mr.material = MatMountains;
+				} else if (h.Elevation >= HeightHill) {
 					mr.material = MatGrasslands;
-				} else {
-					mr.material = MatOcean;
-				}
+				} else if (h.Elevation >= HeightFlat) {
+                    mr.material = MatPlains;
+                } else {
+                    mr.material = MatOcean;
+                }
 
-				MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter> ();
+                    MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter> ();
 				mf.mesh = MeshWater;
 			}
 		}
@@ -115,13 +131,9 @@ public class HexMap : MonoBehaviour
     public Hex[] GetHexesWithinRangeOf(Hex centerHex, int range) {
         List<Hex> results = new List<Hex>();
 
-        //Debug.LogError(string.Format("In GetHexesWithinRadiusOf - h.Q: {0} h.R: {1} radius: {2}", centerHex.Q, centerHex.R, radius));
-
-        for (int dx = -range; dx <= range; dx++) {
-            for (int dy = Mathf.Max(-range, -dx-range); dy <= Mathf.Min(range, -dx+range); dy++) {
-                results.Add(hexes[centerHex.Q + dx, centerHex.R + dy]);
-                //Hex h = hexes[centerHex.Q + dx, centerHex.R + dy];
-                //Debug.LogError(string.Format("Adding hex - h.Q: {0} h.R: {1}", h.Q, h.R));
+        for (int dx = -range; dx < range-1; dx++) {
+            for (int dy = Mathf.Max(-range+1, -dx-range); dy <= Mathf.Min(range, -dx+range-1); dy++) {
+                results.Add(GetHexAt(centerHex.Q + dx, centerHex.R + dy));
             }
         }
         return results.ToArray();
