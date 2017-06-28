@@ -13,17 +13,16 @@ public class Hex {
     public readonly int R;  // row
     public readonly int S;  // sum
 
-	public float Elevation;
-	public float Moisture;
+    public float Elevation;
+    public float Moisture;
+
+    private HexMap hexMap;
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
     static readonly float RADIUS = 1f;
 
-	// TODO: Link with HexMap version of this
-    bool allowWrapEastWest = true;
-    bool allowWrapNorthSouth = false;
-
-    public Hex(int q, int r) {
+    public Hex(HexMap hexMap, int q, int r) {
+        this.hexMap = hexMap;
         this.Q = q;
         this.R = r;
         this.S = -(q + r);
@@ -66,12 +65,12 @@ public class Hex {
         // 2.8 -> -0.2
         // 2.6 -> -0.4
         // -0.6 -> 0.4
-        if (allowWrapEastWest) {
+        if (hexMap.allowWrapEastWest) {
             int howManyWidthsToFix = Mathf.RoundToInt((position.x - cameraPosition.x) / mapWidth);
             position.x -= howManyWidthsToFix * mapWidth;
         }
 
-        if (allowWrapNorthSouth) {
+        if (hexMap.allowWrapNorthSouth) {
             int howManyHeightsToFix = Mathf.RoundToInt((position.z - cameraPosition.z) / mapHeight);
             position.z -= howManyHeightsToFix * mapHeight;
         }
@@ -80,13 +79,23 @@ public class Hex {
     }
 
     public static float Distance(Hex a, Hex b) {
-        // FIXME: wrapping
-        return 
+        int dQ = Mathf.Abs(a.Q - b.Q);
+        if (a.hexMap.allowWrapEastWest) {
+            if (dQ > a.hexMap.NumRows / 2)
+                dQ = a.hexMap.NumRows - dQ;
+        }
+
+        int dR = Mathf.Abs(a.R - b.R);
+        if (a.hexMap.allowWrapNorthSouth) {
+            if (dR > a.hexMap.NumCols / 2)
+                dR = a.hexMap.NumCols - dR;
+        }
+
+        return
             Mathf.Max(
-                Mathf.Abs(a.Q - b.Q), 
-                Mathf.Abs(a.R - b.R), 
+                dQ,
+                dR,
                 Mathf.Abs(a.S - b.S)
             );
     }
-
 }

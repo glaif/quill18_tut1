@@ -18,22 +18,31 @@ public class HexMap : MonoBehaviour
 	public Mesh MeshHill;
 	public Mesh MeshMountain;
 
-	public Material MatOcean;
+    public GameObject ForestPrefab;
+    public GameObject JunglePrefab;
+
+    public Material MatOcean;
 	public Material MatPlains;
 	public Material MatGrasslands;
 	public Material MatMountains;
+    public Material MatDesert;
 
     // thresholds to determine what a tile is based on height
     public float HeightMountain = 1f;
     public float HeightHill = 0.6f;
     public float HeightFlat = 0.0f;
 
-	public readonly int NumRows = 30;
+    public float MoistureJungle = 1f;
+    public float MoistureForest = 0.5f;
+    public float MoistureGrasslands = 0.0f;
+    public float MoisturePlains = -0.75f;
+
+    public readonly int NumRows = 30;
 	public readonly int NumCols = 60;
 
 	// TODO: Link with Hex version of this
-	bool allowWrapEastWest = true;
-	bool allowWrapNorthSouth = false;
+	public bool allowWrapEastWest = true;
+	public bool allowWrapNorthSouth = false;
 
 	private Hex[,] hexes;
 	private Dictionary<Hex, GameObject> hexToGameObjectMap;
@@ -71,7 +80,7 @@ public class HexMap : MonoBehaviour
 		for (int col = 0; col < NumCols; col++) {
 			for (int row = 0; row < NumRows; row++) {
 
-				Hex h = new Hex (col, row);
+				Hex h = new Hex (this, col, row);
 
 				hexes [col, row] = h;
 				h.Elevation = -0.5f;
@@ -112,19 +121,46 @@ public class HexMap : MonoBehaviour
 				GameObject hexGO = hexToGameObjectMap [h];
 
 				MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer> ();
-				if (h.Elevation >= HeightMountain) {
-					mr.material = MatMountains;
-				} else if (h.Elevation >= HeightHill) {
-					mr.material = MatGrasslands;
-				} else if (h.Elevation >= HeightFlat) {
-                    mr.material = MatPlains;
-                } else {
-                    mr.material = MatOcean;
+                MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
+
+                if (h.Elevation >= HeightFlat && h.Elevation < HeightMountain) {
+                    if (h.Moisture >= MoistureJungle) {
+                        mr.material = MatGrasslands;
+                        // Spawn Trees
+                        Vector3 p = hexGO.transform.position;
+                        if (h.Elevation >= HeightHill) {
+                            p.y += 0.25f;
+                        }
+                        GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
+                    } else if (h.Moisture >= MoistureForest) {
+                        mr.material = MatGrasslands;
+                        // Spawn Forest
+                        Vector3 p = hexGO.transform.position;
+                        if (h.Elevation >= HeightHill) {
+                            p.y += 0.25f;
+                        }
+                        GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
+                    } else if (h.Moisture >= MoistureGrasslands) {
+                        mr.material = MatGrasslands;
+                    } else if (h.Moisture >= MoisturePlains) {
+                        mr.material = MatPlains;
+                    } else {
+                        mr.material = MatDesert;
+                    }
                 }
 
-                    MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter> ();
-				mf.mesh = MeshWater;
-			}
+                if (h.Elevation >= HeightMountain) {
+                    mr.material = MatMountains;
+                    mf.mesh = MeshMountain;
+                } else if (h.Elevation >= HeightHill) {
+                    mf.mesh = MeshHill;
+                } else if (h.Elevation >= HeightFlat) {
+                    mf.mesh = MeshFlat;
+                } else {
+                    mr.material = MatOcean;
+                    mf.mesh = MeshWater;
+                }
+            }
 		}
 	}
 
