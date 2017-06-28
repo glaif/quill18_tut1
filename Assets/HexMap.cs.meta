@@ -1,11 +1,20 @@
 fileFormatVersion: 2
 guid: 69b1e7ad90dfc144ea7eb61c3c5cadcc
-timeCreated: 1498591810
+timeCreated: 1498654416
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
   defaultReferences:
-  - hexPrefab: {instanceID: 0}
+  - hexPrefab: {fileID: 1241368029807198, guid: cee658ef98568674ca42474124f31390,
+      type: 2}
+  - MeshWater: {fileID: 4300000, guid: 35f37dbd2d4d8dd4bb107546269468ce, type: 3}
+  - MeshFlat: {fileID: 4300000, guid: 35f37dbd2d4d8dd4bb107546269468ce, type: 3}
+  - MeshHill: {fileID: 4300000, guid: 35f37dbd2d4d8dd4bb107546269468ce, type: 3}
+  - MeshMountain: {fileID: 4300000, guid: 35f37dbd2d4d8dd4bb107546269468ce, type: 3}
+  - MatOcean: {fileID: 2100000, guid: 00c9ca139d222c748949c41a1d0f0b8f, type: 2}
+  - MatPlains: {fileID: 2100000, guid: e5e558a15fa3f7846a937e076a0f57ea, type: 2}
+  - MatGrasslands: {fileID: 2100000, guid: bdcb2cd3b1c10b54b903c31679c516cd, type: 2}
+  - MatMountains: {fileID: 2100000, guid: 09699864befd2b447a7f78f63ed9a5eb, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

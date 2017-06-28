@@ -62,7 +62,7 @@ public class HexMap : MonoBehaviour
 				Hex h = new Hex (col, row);
 
 				hexes [col, row] = h;
-				h.Elevation = -1;
+				h.Elevation = -0.5f;
 
 				Vector3 pos = h.PositionFromCamera (
 					                          Camera.main.transform.position,
@@ -111,4 +111,19 @@ public class HexMap : MonoBehaviour
 			}
 		}
 	}
+
+    public Hex[] GetHexesWithinRangeOf(Hex centerHex, int range) {
+        List<Hex> results = new List<Hex>();
+
+        //Debug.LogError(string.Format("In GetHexesWithinRadiusOf - h.Q: {0} h.R: {1} radius: {2}", centerHex.Q, centerHex.R, radius));
+
+        for (int dx = -range; dx <= range; dx++) {
+            for (int dy = Mathf.Max(-range, -dx-range); dy <= Mathf.Min(range, -dx+range); dy++) {
+                results.Add(hexes[centerHex.Q + dx, centerHex.R + dy]);
+                //Hex h = hexes[centerHex.Q + dx, centerHex.R + dy];
+                //Debug.LogError(string.Format("Adding hex - h.Q: {0} h.R: {1}", h.Q, h.R));
+            }
+        }
+        return results.ToArray();
+    }
 }

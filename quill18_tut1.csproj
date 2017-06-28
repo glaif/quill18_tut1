@@ -82,6 +82,7 @@
     <Compile Include="Assets\Hex.cs" />
     <Compile Include="Assets\HexComponent.cs" />
     <Compile Include="Assets\HexMap.cs" />
+    <Compile Include="Assets\HexMap_Continent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
