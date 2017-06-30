@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 /// <summary>
 /// Helper class to define Hex object positions
@@ -20,6 +21,8 @@ public class Hex {
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
     static readonly float RADIUS = 1f;
+
+    HashSet<Unit> units;
 
     public Hex(HexMap hexMap, int q, int r) {
         this.hexMap = hexMap;
@@ -97,5 +100,22 @@ public class Hex {
                 dR,
                 Mathf.Abs(a.S - b.S)
             );
+    }
+
+    public void AddUnit(Unit unit) {
+        if (units == null) {
+            units = new HashSet<Unit>();
+        }
+        units.Add(unit);
+    }
+
+    public void RemoveUnit(Unit unit) {
+        if (units != null) {
+            units.Remove(unit);
+        }
+    }
+
+    public Unit[] Units() {
+        return units.ToArray();
     }
 }

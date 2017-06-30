@@ -27,27 +27,32 @@ public class HexMap : MonoBehaviour
 	public Material MatMountains;
     public Material MatDesert;
 
+    public GameObject UnitDwarfPrefab;
+
     // thresholds to determine what a tile is based on height
-    public float HeightMountain = 1f;
-    public float HeightHill = 0.6f;
-    public float HeightFlat = 0.0f;
+    [System.NonSerialized] public float HeightMountain = 1f;
+    [System.NonSerialized] public float HeightHill = 0.6f;
+    [System.NonSerialized] public float HeightFlat = 0.0f;
 
-    public float MoistureJungle = 1f;
-    public float MoistureForest = 0.5f;
-    public float MoistureGrasslands = 0.0f;
-    public float MoisturePlains = -0.75f;
+    [System.NonSerialized] public float MoistureJungle = 1f;
+    [System.NonSerialized] public float MoistureForest = 0.5f;
+    [System.NonSerialized] public float MoistureGrasslands = 0.0f;
+    [System.NonSerialized] public float MoisturePlains = -0.75f;
 
-    public readonly int NumRows = 30;
-	public readonly int NumCols = 60;
+    [System.NonSerialized] public readonly int NumRows = 30;
+    [System.NonSerialized] public readonly int NumCols = 60;
 
-	// TODO: Link with Hex version of this
-	public bool allowWrapEastWest = true;
-	public bool allowWrapNorthSouth = false;
+    // TODO: Link with Hex version of this
+    [System.NonSerialized] public bool allowWrapEastWest = true;
+    [System.NonSerialized] public bool allowWrapNorthSouth = false;
 
 	private Hex[,] hexes;
 	private Dictionary<Hex, GameObject> hexToGameObjectMap;
 
-	public Hex GetHexAt (int x, int y)
+    private HashSet<Unit> units;
+    private Dictionary<Unit, GameObject> unitToGameObjectMap;
+
+    public Hex GetHexAt (int x, int y)
 	{
 		if (hexes == null) {
 			Debug.LogError ("Hexes array not yet instantiated!");
@@ -173,5 +178,18 @@ public class HexMap : MonoBehaviour
             }
         }
         return results.ToArray();
+    }
+
+    public void SpawnUnitAt(Unit unit, GameObject prefab, int q, int r) {
+
+        if (units == null) {
+            units = new HashSet<Unit>();
+            unitToGameObjectMap = new Dictionary<Unit, GameObject>();
+        }
+        GameObject myHex = hexToGameObjectMap[GetHexAt(q, r)];
+        GameObject unitGO = Instantiate(prefab, myHex.transform.position, Quaternion.identity, myHex.transform);
+
+        units.Add(unit);
+        unitToGameObjectMap.Add(unit, unitGO);
     }
 }

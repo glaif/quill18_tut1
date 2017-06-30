@@ -28,7 +28,7 @@ public class CameraMouseController : MonoBehaviour {
         );
     }
 
-    bool isDraggingCamera = false;
+    //bool isDraggingCamera = false;
     Vector3 lastMousePosition;
     Vector3 lastMouseGroundPlanePosition;
 
@@ -36,6 +36,8 @@ public class CameraMouseController : MonoBehaviour {
     void Update() {
         Update_CameraDrag();
         Update_ScrollZoom();
+
+        lastMousePosition = Input.mousePosition;
     }
 
     Vector3 MouseToGroundPlane(Vector3 mousePos) {
@@ -53,11 +55,11 @@ public class CameraMouseController : MonoBehaviour {
     void Update_CameraDrag() {
         if (Input.GetMouseButtonDown(0)) {
             // Mouse butten went down, start dragging camera
-            isDraggingCamera = true;
+            //isDraggingCamera = true;
             lastMouseGroundPlanePosition = MouseToGroundPlane(Input.mousePosition);
         } else if (Input.GetMouseButtonUp(0)) {
             // Mouse butten went up, stop dragging camera
-            isDraggingCamera = false;
+            //isDraggingCamera = false;
             return;
         } else if (Input.GetMouseButton(0) && Vector3.Distance(Input.mousePosition, lastMousePosition) > MOUSE_DRAG_THRESHOLD) {
             // Holding down left mouse button and moving
