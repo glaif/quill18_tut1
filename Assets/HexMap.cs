@@ -11,7 +11,18 @@ public class HexMap : MonoBehaviour
 		generateMap ();
 	}
 
-	public GameObject hexPrefab;
+    void Update() {
+        //TESTING: Hit spacebar to advance to next turn
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            if (units != null) {
+                foreach(Unit u in units) {
+                    u.DoTurn();
+                }
+            }
+        }
+    }
+
+    public GameObject hexPrefab;
 
 	public Mesh MeshWater;
 	public Mesh MeshFlat;
@@ -75,7 +86,16 @@ public class HexMap : MonoBehaviour
 		return hexes [x, y];
 	}
 
-	virtual public void generateMap ()
+    public Vector3 GetHexPosition(int q, int r) {
+        Hex hex = GetHexAt(q, r);
+        return GetHexPosition(hex);
+    }
+
+    public Vector3 GetHexPosition(Hex hex) {
+        return hex.PositionFromCamera(Camera.main.transform.position, NumRows, NumCols);
+    }
+
+    virtual public void generateMap ()
 	{
 		// Generate a map filled with ocean
 
@@ -186,8 +206,11 @@ public class HexMap : MonoBehaviour
             units = new HashSet<Unit>();
             unitToGameObjectMap = new Dictionary<Unit, GameObject>();
         }
-        GameObject myHex = hexToGameObjectMap[GetHexAt(q, r)];
-        GameObject unitGO = Instantiate(prefab, myHex.transform.position, Quaternion.identity, myHex.transform);
+        Hex myHex = GetHexAt(q, r);
+        GameObject myHexGO = hexToGameObjectMap[myHex];
+        unit.SetHex(myHex);
+        GameObject unitGO = Instantiate(prefab, myHexGO.transform.position, Quaternion.identity, myHexGO.transform);
+        unit.OnUnitMoved += unitGO.GetComponent<UnitView>().OnUnitMoved;
 
         units.Add(unit);
         unitToGameObjectMap.Add(unit, unitGO);

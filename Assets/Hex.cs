@@ -17,7 +17,7 @@ public class Hex {
     public float Elevation;
     public float Moisture;
 
-    private HexMap hexMap;
+    public readonly HexMap HexMap;
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
     static readonly float RADIUS = 1f;
@@ -25,7 +25,7 @@ public class Hex {
     HashSet<Unit> units;
 
     public Hex(HexMap hexMap, int q, int r) {
-        this.hexMap = hexMap;
+        this.HexMap = hexMap;
         this.Q = q;
         this.R = r;
         this.S = -(q + r);
@@ -55,6 +55,10 @@ public class Hex {
         return HexWidth();
     }
 
+    public Vector3 PositionFromCamera() {
+        return HexMap.GetHexPosition(this);
+    }
+
     public Vector3 PositionFromCamera(Vector3 cameraPosition, float numRows, float numCols) {
         float mapHeight = numRows * HexVerticalSpacing();
         float mapWidth = numCols * HexHorizontalSpacing();
@@ -68,12 +72,12 @@ public class Hex {
         // 2.8 -> -0.2
         // 2.6 -> -0.4
         // -0.6 -> 0.4
-        if (hexMap.allowWrapEastWest) {
+        if (HexMap.allowWrapEastWest) {
             int howManyWidthsToFix = Mathf.RoundToInt((position.x - cameraPosition.x) / mapWidth);
             position.x -= howManyWidthsToFix * mapWidth;
         }
 
-        if (hexMap.allowWrapNorthSouth) {
+        if (HexMap.allowWrapNorthSouth) {
             int howManyHeightsToFix = Mathf.RoundToInt((position.z - cameraPosition.z) / mapHeight);
             position.z -= howManyHeightsToFix * mapHeight;
         }
@@ -83,15 +87,15 @@ public class Hex {
 
     public static float Distance(Hex a, Hex b) {
         int dQ = Mathf.Abs(a.Q - b.Q);
-        if (a.hexMap.allowWrapEastWest) {
-            if (dQ > a.hexMap.NumRows / 2)
-                dQ = a.hexMap.NumRows - dQ;
+        if (a.HexMap.allowWrapEastWest) {
+            if (dQ > a.HexMap.NumRows / 2)
+                dQ = a.HexMap.NumRows - dQ;
         }
 
         int dR = Mathf.Abs(a.R - b.R);
-        if (a.hexMap.allowWrapNorthSouth) {
-            if (dR > a.hexMap.NumCols / 2)
-                dR = a.hexMap.NumCols - dR;
+        if (a.HexMap.allowWrapNorthSouth) {
+            if (dR > a.HexMap.NumCols / 2)
+                dR = a.HexMap.NumCols - dR;
         }
 
         return
