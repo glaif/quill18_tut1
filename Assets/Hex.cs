@@ -17,6 +17,9 @@ public class Hex {
     public float Elevation;
     public float Moisture;
 
+    // TODO: Need property to track Hex type (plains, grasslands, etc.)
+    // TODO: Need property to track Hex details (fores, mine, farm, etc.)
+
     public readonly HexMap HexMap;
 
     static readonly float WIDTH_MULTIPLIER = Mathf.Sqrt(3) / 2;
@@ -121,5 +124,10 @@ public class Hex {
 
     public Unit[] Units() {
         return units.ToArray();
+    }
+
+    public int BaseMovementCost() {
+        // TODO: Factor in terrain type and features
+        return 1;
     }
 }
