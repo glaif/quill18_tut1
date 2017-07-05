@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿using QPath;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HexMap : MonoBehaviour
-{
+public class HexMap : MonoBehaviour, IQPathWorld {
 
 	// Use this for initialization
 	void Start ()
@@ -17,6 +16,14 @@ public class HexMap : MonoBehaviour
             if (units != null) {
                 foreach(Unit u in units) {
                     u.DoTurn();
+                }
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.P)) {
+            if (units != null) {
+                foreach (Unit u in units) {
+                    u.DUMMY_PATHING_FUNCTION();
                 }
             }
         }
@@ -59,6 +66,7 @@ public class HexMap : MonoBehaviour
 
 	private Hex[,] hexes;
 	private Dictionary<Hex, GameObject> hexToGameObjectMap;
+    private Dictionary<GameObject, Hex> gameObjectToHexMap;
 
     private HashSet<Unit> units;
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
@@ -86,6 +94,20 @@ public class HexMap : MonoBehaviour
 		return hexes [x, y];
 	}
 
+    public Hex GetHexFromGameObject(GameObject hexGO) {
+        if (gameObjectToHexMap.ContainsKey(hexGO)) {
+            return gameObjectToHexMap[hexGO];
+        }
+        return null;
+    }
+
+    public GameObject GetHexGO(Hex h) {
+        if (hexToGameObjectMap.ContainsKey(h)) {
+            return hexToGameObjectMap[h];
+        }
+        return null;
+    }
+
     public Vector3 GetHexPosition(int q, int r) {
         Hex hex = GetHexAt(q, r);
         return GetHexPosition(hex);
@@ -101,8 +123,9 @@ public class HexMap : MonoBehaviour
 
 		hexes = new Hex[NumCols, NumRows];
 		hexToGameObjectMap = new Dictionary<Hex, GameObject> ();
+        gameObjectToHexMap = new Dictionary<GameObject, Hex>();
 
-		for (int col = 0; col < NumCols; col++) {
+        for (int col = 0; col < NumCols; col++) {
 			for (int row = 0; row < NumRows; row++) {
 
 				Hex h = new Hex (this, col, row);
@@ -122,15 +145,12 @@ public class HexMap : MonoBehaviour
 					                   Quaternion.identity, 
 					                   this.transform);
 				
-				hexToGameObjectMap [h] = hexGO;
+				hexToGameObjectMap[h] = hexGO;
+                gameObjectToHexMap[hexGO] = h;
 
 				hexGO.name = string.Format ("HEX: {0},{1}", col, row);
 				hexGO.GetComponent<HexComponent> ().Hex = h;
 				hexGO.GetComponent<HexComponent> ().HexMap = this;
-
-				hexGO.GetComponentInChildren<TextMesh> ().text = string.Format ("{0},{1}", col, row);
-
-
 			}
 		}
 
@@ -143,10 +163,12 @@ public class HexMap : MonoBehaviour
 		for (int col = 0; col < NumCols; col++) {
 			for (int row = 0; row < NumRows; row++) {
 				Hex h = hexes [col, row];
-				GameObject hexGO = hexToGameObjectMap [h];
+				GameObject hexGO = hexToGameObjectMap[h];
 
-				MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer> ();
+				MeshRenderer mr = hexGO.GetComponentInChildren<MeshRenderer>();
                 MeshFilter mf = hexGO.GetComponentInChildren<MeshFilter>();
+
+                h.MovementCost = 1;
 
                 if (h.Elevation >= HeightFlat && h.Elevation < HeightMountain) {
                     if (h.Moisture >= MoistureJungle) {
@@ -156,14 +178,17 @@ public class HexMap : MonoBehaviour
                         if (h.Elevation >= HeightHill) {
                             p.y += 0.25f;
                         }
+                        h.MovementCost = 2;
                         GameObject.Instantiate(JunglePrefab, p, Quaternion.identity, hexGO.transform);
                     } else if (h.Moisture >= MoistureForest) {
+                        h.MovementCost = 2;
                         mr.material = MatGrasslands;
                         // Spawn Forest
                         Vector3 p = hexGO.transform.position;
                         if (h.Elevation >= HeightHill) {
                             p.y += 0.25f;
                         }
+                        h.MovementCost = 2;
                         GameObject.Instantiate(ForestPrefab, p, Quaternion.identity, hexGO.transform);
                     } else if (h.Moisture >= MoistureGrasslands) {
                         mr.material = MatGrasslands;
@@ -177,14 +202,20 @@ public class HexMap : MonoBehaviour
                 if (h.Elevation >= HeightMountain) {
                     mr.material = MatMountains;
                     mf.mesh = MeshMountain;
+                    h.MovementCost = -99;
                 } else if (h.Elevation >= HeightHill) {
+                    h.MovementCost = 2;
                     mf.mesh = MeshHill;
                 } else if (h.Elevation >= HeightFlat) {
                     mf.mesh = MeshFlat;
                 } else {
+                    h.MovementCost = -99;
                     mr.material = MatOcean;
                     mf.mesh = MeshWater;
                 }
+
+                hexGO.GetComponentInChildren<TextMesh>().text = 
+                    string.Format("{0},{1}\n{2}", col, row, h.BaseMovementCost());
             }
 		}
 	}
