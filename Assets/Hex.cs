@@ -18,8 +18,13 @@ public class Hex : IQPathTile {
     public float Elevation;
     public float Moisture;
 
-    // TODO: This is just a temporarily public value
-    public int MovementCost = 1;
+    public enum TERRAIN_TYPE { PLAINS, GRASSLANDS, MARSH, FLOODPLAINS, DESERT, LAKE, OCEAN }
+    public enum ELEVATION_TYPE { FLAT, HILL, MOUNTAIN, WATER }
+    public enum FEATURE_TYPE { NONE, FOREST, RAINFOREST, MARSH }
+
+    public TERRAIN_TYPE TerrainType { get; set; }
+    public ELEVATION_TYPE ElevationType { get; set; }
+    public FEATURE_TYPE FeatureType { get; set; }
 
     // TODO: Need property to track Hex type (plains, grasslands, etc.)
     // TODO: Need property to track Hex details (fores, mine, farm, etc.)
@@ -134,9 +139,22 @@ public class Hex : IQPathTile {
         return units.ToArray();
     }
 
-    public int BaseMovementCost() {
-        // TODO: Factor in terrain type and features
-        return this.MovementCost;
+    /// <summary>
+    /// Returns the most common movement cost for a typical unit
+    /// </summary>
+    public int BaseMovementCost(bool isHillWalker, bool isForestWalker, bool isFlyer) {
+        if ((ElevationType == ELEVATION_TYPE.MOUNTAIN || ElevationType == ELEVATION_TYPE.WATER) && isFlyer == false)
+            return -99;
+
+        int moveCost = 1;
+
+        if (ElevationType == ELEVATION_TYPE.HILL && !isHillWalker)
+            moveCost += 1;
+
+        if ((FeatureType == FEATURE_TYPE.FOREST || FeatureType == FEATURE_TYPE.RAINFOREST) && !isForestWalker)
+            moveCost += 1;
+
+        return moveCost;
     }
 
     Hex[] neighbours;

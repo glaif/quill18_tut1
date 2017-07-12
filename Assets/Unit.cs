@@ -15,6 +15,10 @@ public class Unit : IQPathUnit {
     public delegate void UnitMovedDelegate(Hex oldHex, Hex newHex);
     public event UnitMovedDelegate OnUnitMoved;
 
+    /// <summary>
+    /// List of hexes to walkthrough (from pathfinder).
+    /// NOTE: The first item is always the hex we are standing in.
+    /// </summary>
     Queue<Hex> hexPath;
 
     // TODO: MOve to central option/config file
@@ -55,9 +59,13 @@ public class Unit : IQPathUnit {
 
     public void SetHexPath(Hex[] hexArray) {
         this.hexPath = new Queue<Hex>(hexArray);
-        if (hexPath.Count > 0) {
-            this.hexPath.Dequeue();  // Throw out first hex, since we're on it already
-        }
+        //if (hexPath.Count > 0) {
+        //    this.hexPath.Dequeue();  // Throw out first hex, since we're on it already
+        //}
+    }
+
+    public Hex[] GetHexPath() {
+        return (this.hexPath == null) ? null : this.hexPath.ToArray();
     }
 
     public void DoTurn() {
@@ -67,16 +75,24 @@ public class Unit : IQPathUnit {
         }
 
         // Grab the first Hex from the queue
-        Hex newHex = hexPath.Dequeue();
+        // Remove the hex we are leaving first
+        hexPath.Dequeue();
+        Hex newHex = hexPath.Peek();
+
+        if (hexPath.Count == 1) {
+            // The only hex in the queue is the last one in our
+            // path, so clear the hexPath.
+            hexPath = null;
+        }
 
         // Move to the new hex
         SetHex(newHex);
     }
 
     public int MovementCostToEnterHex(Hex hex) {
-        // TODO: override base movement cost based 
-        // on unit movement mode + tile type
-        return hex.BaseMovementCost();
+        // TODO: implement different movement traits
+
+        return hex.BaseMovementCost(false, false, false);
     }
 
     public float AggregateTurnsToEnterHex(Hex hex, float turnsToDate) {

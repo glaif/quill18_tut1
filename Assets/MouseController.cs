@@ -54,6 +54,29 @@ public class MouseController : MonoBehaviour {
 
         lastMousePosition = Input.mousePosition;
         hexLastUnderMouse = hexUnderMouse;
+
+        if (selectedUnit != null) {
+            DrawPath((hexPath != null) ? hexPath : selectedUnit.GetHexPath());
+        } else {
+            DrawPath(null); // Clear the path display
+        }
+    }
+
+    void DrawPath(Hex[] hexPath) {
+        if (hexPath == null || hexPath.Length == 0) {
+            lineRenderer.enabled = false;
+            return;
+        }
+        lineRenderer.enabled = true;
+
+        Vector3[] ps = new Vector3[hexPath.Length];
+
+        for (int i = 0; i < hexPath.Length; i++) {
+            GameObject hexGO = hexMap.GetHexGO(hexPath[i]);
+            ps[i] = hexGO.transform.position + (Vector3.up * 0.1f);
+        }
+        lineRenderer.positionCount = ps.Length;
+        lineRenderer.SetPositions(ps);
     }
 
     void CancelUpdateFunc() {
@@ -61,6 +84,8 @@ public class MouseController : MonoBehaviour {
 
         // Also do cleanup of any UI stuff associated with modes
         selectedUnit = null;
+
+        hexPath = null;
     }
 
     void Update_DetectModeStart() {
@@ -80,8 +105,16 @@ public class MouseController : MonoBehaviour {
 
             if (us.Length > 0) {
                 selectedUnit = us[0];
-                Update_CurrentFunc = Update_UnitMovement;
+
+                // NOTE: selecting a unit does not change our mouse mode
+
+                //Update_CurrentFunc = Update_UnitMovement;
             }
+        } else if (selectedUnit != null && Input.GetMouseButtonDown(1)) {
+            // We have a selected unit, and we've pushed the down the right
+            // mouse button, so enter unit move mode.
+
+            Update_CurrentFunc = Update_UnitMovement;
 
         } else if (Input.GetMouseButton(0) && Vector3.Distance(Input.mousePosition, lastMousePosition) > MOUSE_DRAG_THRESHOLD) {
             // Left button is being held down and the mouse moved
@@ -149,27 +182,8 @@ public class MouseController : MonoBehaviour {
         if (hexPath == null || hexUnderMouse != hexLastUnderMouse) {
             // Do a pathfinding search to that hex
             hexPath = QPath.QPath.FindPath<Hex>(hexMap, selectedUnit, selectedUnit.Hex, hexUnderMouse, Hex.CostEstimate);
-            // Draw the path
-            DrawPath(hexPath);
         }
 
-    }
-
-    void DrawPath(Hex[] hexPath) {
-        if (hexPath.Length == 0) {
-            lineRenderer.enabled = false;
-            return;
-        }
-        lineRenderer.enabled = true;
-
-        Vector3[] ps = new Vector3[hexPath.Length];
-
-        for (int i = 0; i < hexPath.Length; i++) {
-            GameObject hexGO = hexMap.GetHexGO(hexPath[i]);
-            ps[i] = hexGO.transform.position + (Vector3.up*0.1f);
-        }
-        lineRenderer.positionCount = ps.Length;
-        lineRenderer.SetPositions(ps);
     }
 
     void Update_CameraDrag() {
