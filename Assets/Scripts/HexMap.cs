@@ -1,8 +1,11 @@
 ﻿using QPath;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class HexMap : MonoBehaviour, IQPathWorld {
+
+    public bool AnimationIsPlaying = false;
 
 	// Use this for initialization
 	void Start ()
@@ -13,20 +16,45 @@ public class HexMap : MonoBehaviour, IQPathWorld {
     void Update() {
         //TESTING: Hit spacebar to advance to next turn
         if (Input.GetKeyDown(KeyCode.Space)) {
-            if (units != null) {
-                foreach(Unit u in units) {
-                    u.DoTurn();
-                }
+            StartCoroutine(DoAllUnitMoves());
+        }
+    }
+
+    IEnumerator DoAllUnitMoves() {
+        if (units != null) {
+            foreach (Unit u in units) {
+                yield return DoUnitMoves(u);
             }
+        }
+    }
+
+    public IEnumerator DoUnitMoves(Unit u) {
+        // Is there any reason to check here if a unit should be moving?
+        // Probably not -- DoMove should just check to see if it needs 
+        // to do anything, or just return immediately.
+        while (u.DoMove()) {
+            Debug.Log("DoMove returned true -- will be called again.");
+            // TODO: check to see if an animation is playing, if so
+            // wait for it to finish.
+            while (AnimationIsPlaying) {
+                yield return null; // wait one frame
+            }
+        }
+    }
+
+    public void EndTurn() {
+        // First check to see if there are any units that have enqueued moves
+            // Do those moves
+        // Now are any units waiting for orders? If so, halt EndTurn()
+
+        // Heal units that are resting
+
+        // Reset unit movement
+        foreach (Unit u in units) {
+            u.RefreshMovement();
         }
 
-        if (Input.GetKeyDown(KeyCode.P)) {
-            if (units != null) {
-                foreach (Unit u in units) {
-                    u.DUMMY_PATHING_FUNCTION();
-                }
-            }
-        }
+        // Go to next player
     }
 
     public GameObject hexPrefab;
@@ -68,6 +96,8 @@ public class HexMap : MonoBehaviour, IQPathWorld {
 	private Dictionary<Hex, GameObject> hexToGameObjectMap;
     private Dictionary<GameObject, Hex> gameObjectToHexMap;
 
+
+    // TODO: Separate unit list for each player
     private HashSet<Unit> units;
     private Dictionary<Unit, GameObject> unitToGameObjectMap;
 

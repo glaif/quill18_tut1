@@ -24,10 +24,18 @@ public class UnitView : MonoBehaviour {
         if (Vector3.Distance(this.transform.position, newPosition) > 2) {
             // Large move, probably due to a map seam
             this.transform.position = newPosition;
+        } else {
+            // TODO: We need a better signalling system and/or animation queuing
+            GameObject.FindObjectOfType<HexMap>().AnimationIsPlaying = true;
         }
     }
 
     void Update() {
         this.transform.position = Vector3.SmoothDamp(this.transform.position, newPosition, ref currentVelocity, smoothTime);
+
+        // TODO: figure out the best way to determine the end of animation
+        if (Vector3.Distance(this.transform.position, newPosition) < 0.1f) {
+            GameObject.FindObjectOfType<HexMap>().AnimationIsPlaying = false;
+        }
     }
 }

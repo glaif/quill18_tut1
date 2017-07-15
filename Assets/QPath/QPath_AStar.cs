@@ -31,7 +31,7 @@ namespace QPath {
         }
 
         public void DoWork() {
-            Debug.LogError("QPath_AStar::DoWork");
+            //Debug.LogError("QPath_AStar::DoWork");
             path = new Queue<T>();
 
             HashSet<T> closedSet = new HashSet<T>();

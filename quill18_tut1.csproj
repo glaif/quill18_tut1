@@ -81,13 +81,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\CameraKeyboardController.cs" />
-    <Compile Include="Assets\CameraMotion.cs" />
-    <Compile Include="Assets\Hex.cs" />
-    <Compile Include="Assets\HexComponent.cs" />
-    <Compile Include="Assets\HexMap.cs" />
-    <Compile Include="Assets\HexMap_Continent.cs" />
-    <Compile Include="Assets\MouseController.cs" />
     <Compile Include="Assets\QPath\IQPathTile.cs" />
     <Compile Include="Assets\QPath\IQPathUnit.cs" />
     <Compile Include="Assets\QPath\IQPathWorld.cs" />
@@ -105,6 +98,16 @@
     <Compile Include="Assets\QPath\QPath.cs" />
     <Compile Include="Assets\QPath\QPath_AStar.cs" />
     <Compile Include="Assets\QPath\QPath_TileGraph.cs" />
+    <Compile Include="Assets\Scripts\CameraKeyboardController.cs" />
+    <Compile Include="Assets\Scripts\CameraMotion.cs" />
+    <Compile Include="Assets\Scripts\Hex.cs" />
+    <Compile Include="Assets\Scripts\HexComponent.cs" />
+    <Compile Include="Assets\Scripts\HexMap.cs" />
+    <Compile Include="Assets\Scripts\HexMap_Continent.cs" />
+    <Compile Include="Assets\Scripts\MouseController.cs" />
+    <Compile Include="Assets\Scripts\UI\UnitSelectionPanel.cs" />
+    <Compile Include="Assets\Scripts\Unit.cs" />
+    <Compile Include="Assets\Scripts\UnitView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\Benchmark02.cs" />
@@ -137,8 +140,6 @@
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\VertexZoom.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples\Scripts\WarpTextExample.cs" />
-    <Compile Include="Assets\Unit.cs" />
-    <Compile Include="Assets\UnitView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Models\OpenGameArt\SOURCE.txt" />

@@ -23,6 +23,8 @@ public class MouseController : MonoBehaviour {
         lineRenderer = transform.GetComponentInChildren<LineRenderer>();
     }
 
+    public GameObject UnitSelectionPanel;
+
     // Generic bookkeeping vars
     HexMap hexMap;
     Hex hexUnderMouse;
@@ -33,7 +35,15 @@ public class MouseController : MonoBehaviour {
     Vector3 lastMouseGroundPlanePosition;  // Camera ray Y-plane intersetion point
 
     // Unit movement
-    Unit selectedUnit = null;
+    Unit __selectedUnit = null;
+    public Unit SelectedUnit {
+        get { return __selectedUnit; }
+        set {
+            __selectedUnit = value;
+            UnitSelectionPanel.SetActive(__selectedUnit != null);
+        }
+    }
+
     Hex[] hexPath;
     LineRenderer lineRenderer;
 
@@ -45,6 +55,7 @@ public class MouseController : MonoBehaviour {
         hexUnderMouse = MouseToHex();
 
         if (Input.GetKeyDown(KeyCode.Escape)) {
+            SelectedUnit = null;
             CancelUpdateFunc();
         }
         Update_CurrentFunc();
@@ -55,8 +66,8 @@ public class MouseController : MonoBehaviour {
         lastMousePosition = Input.mousePosition;
         hexLastUnderMouse = hexUnderMouse;
 
-        if (selectedUnit != null) {
-            DrawPath((hexPath != null) ? hexPath : selectedUnit.GetHexPath());
+        if (SelectedUnit != null) {
+            DrawPath((hexPath != null) ? hexPath : SelectedUnit.GetHexPath());
         } else {
             DrawPath(null); // Clear the path display
         }
@@ -83,8 +94,6 @@ public class MouseController : MonoBehaviour {
         Update_CurrentFunc = Update_DetectModeStart;
 
         // Also do cleanup of any UI stuff associated with modes
-        selectedUnit = null;
-
         hexPath = null;
     }
 
@@ -104,13 +113,13 @@ public class MouseController : MonoBehaviour {
             // TODO: implement cycling through multiple units in the same tile
 
             if (us.Length > 0) {
-                selectedUnit = us[0];
+                SelectedUnit = us[0];
 
                 // NOTE: selecting a unit does not change our mouse mode
 
                 //Update_CurrentFunc = Update_UnitMovement;
             }
-        } else if (selectedUnit != null && Input.GetMouseButtonDown(1)) {
+        } else if (SelectedUnit != null && Input.GetMouseButtonDown(1)) {
             // We have a selected unit, and we've pushed the down the right
             // mouse button, so enter unit move mode.
 
@@ -123,7 +132,7 @@ public class MouseController : MonoBehaviour {
             lastMouseGroundPlanePosition = MouseToGroundPlane(Input.mousePosition);
             Update_CurrentFunc();
 
-        } else if (selectedUnit != null && Input.GetMouseButton(1)) {
+        } else if (SelectedUnit != null && Input.GetMouseButton(1)) {
             // TODO: We have a selected unit, and we are holding down the mouse
             // button.  We are in unit movement mode -- show a path from 
             // unit to mouse position via the pathfinding system.
@@ -162,13 +171,16 @@ public class MouseController : MonoBehaviour {
     }
 
     void Update_UnitMovement() {
-        if (Input.GetMouseButtonUp(1) || selectedUnit == null) {
+        if (Input.GetMouseButtonUp(1) || SelectedUnit == null) {
             // Mouse button went up, complete unit movement
             Debug.Log("Complete unit movement.");
 
             // Copy pathfinding path to unit's movement queue
-            if (selectedUnit != null) {
-                selectedUnit.SetHexPath(hexPath);
+            if (SelectedUnit != null) {
+                SelectedUnit.SetHexPath(hexPath);
+
+                // TODO: Tell unit and/or hexmap to process unit movement
+                StartCoroutine(hexMap.DoUnitMoves(SelectedUnit));
             }
 
             CancelUpdateFunc();
@@ -181,7 +193,7 @@ public class MouseController : MonoBehaviour {
         // Is this a different hex than before
         if (hexPath == null || hexUnderMouse != hexLastUnderMouse) {
             // Do a pathfinding search to that hex
-            hexPath = QPath.QPath.FindPath<Hex>(hexMap, selectedUnit, selectedUnit.Hex, hexUnderMouse, Hex.CostEstimate);
+            hexPath = QPath.QPath.FindPath<Hex>(hexMap, SelectedUnit, SelectedUnit.Hex, hexUnderMouse, Hex.CostEstimate);
         }
 
     }

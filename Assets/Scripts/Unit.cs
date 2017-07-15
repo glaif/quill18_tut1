@@ -19,7 +19,7 @@ public class Unit : IQPathUnit {
     /// List of hexes to walkthrough (from pathfinder).
     /// NOTE: The first item is always the hex we are standing in.
     /// </summary>
-    Queue<Hex> hexPath;
+    List<Hex> hexPath;
 
     // TODO: MOve to central option/config file
     const bool MOVEMENT_RULES_LIKE_CIV6 = false;
@@ -54,30 +54,60 @@ public class Unit : IQPathUnit {
     }
 
     public void ClearHexPath() {
-        this.hexPath = new Queue<Hex>();
+        this.hexPath = new List<Hex>();
     }
 
     public void SetHexPath(Hex[] hexArray) {
-        this.hexPath = new Queue<Hex>(hexArray);
-        //if (hexPath.Count > 0) {
-        //    this.hexPath.Dequeue();  // Throw out first hex, since we're on it already
-        //}
+        this.hexPath = new List<Hex>(hexArray);
     }
 
     public Hex[] GetHexPath() {
         return (this.hexPath == null) ? null : this.hexPath.ToArray();
     }
 
-    public void DoTurn() {
+    public bool UnitWaitingForOrders() {
+        // Returns true if we have movement left but nothing queued
+        // TODO: maybe we've been told to fortify / alert / skip turn
+        if (MovementRemaining > 0 && (hexPath == null || hexPath.Count==0)) {
+            return true;
+        }
+        return false;
+    }
+
+    public void RefreshMovement() {
+        MovementRemaining = Movement;
+    }
+
+    /// <summary>
+    /// Processes one tile's worth of movement for the unit
+    /// </summary>
+    /// <returns>Returns true of this should be called immediately again</returns>
+    public bool DoMove() {
         // Do queued move
+
+        if (MovementRemaining <= 0)
+            return false;
+
         if (hexPath == null || hexPath.Count == 0) {
-            return;
+            return false;
         }
 
         // Grab the first Hex from the queue
         // Remove the hex we are leaving first
-        hexPath.Dequeue();
-        Hex newHex = hexPath.Peek();
+        Hex hexWeAreLeaving = hexPath[0];
+        Hex newHex = hexPath[1];
+
+        int costToEnter = MovementCostToEnterHex(newHex);
+
+        if ((costToEnter > MovementRemaining) && 
+            (MovementRemaining < Movement) && 
+            MOVEMENT_RULES_LIKE_CIV6) {
+
+            // We can't enter the hex this turn
+            return false;
+        }
+
+        hexPath.RemoveAt(0);
 
         if (hexPath.Count == 1) {
             // The only hex in the queue is the last one in our
@@ -87,6 +117,10 @@ public class Unit : IQPathUnit {
 
         // Move to the new hex
         SetHex(newHex);
+
+        MovementRemaining = Mathf.Max(MovementRemaining - costToEnter, 0);
+
+        return (hexPath != null && MovementRemaining > 0);
     }
 
     public int MovementCostToEnterHex(Hex hex) {
